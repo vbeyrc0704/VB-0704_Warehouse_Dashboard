@@ -61,30 +61,31 @@
             color: white;
         }
 
-        .pb{
+        .pb {
             width: 40px;
             height: 5px;
             display: inline-block;
             margin-left: 3px;
         }
-        
-        #o.active{
+
+        #o.active {
             background-color: #8b5e83;
             margin-left: 23%;
         }
 
-        #d.active{
+        #d.active {
             background-color: #a9294f;
         }
 
-        #s.active{
+        #s.active {
             background-color: #4e8d7c;
         }
-        #column_chart1{
+
+        #column_chart1 {
             background-color: black;
         }
 
-        .text{
+        .text {
             font-family: 'PT Serif', serif;
             font-weight: 900;
             text-align: center;
@@ -102,16 +103,18 @@
     </center>
 </header>
 
-<body >
+<body>
     <center>
         <h2>VB#0704 Warehouse Dashboard</h2>
     </center>
 
     <div id="map" class="map_style" style="height: 380px; width: 1000px; margin: auto;"></div>
     <div id="msg"></div>
-    <div >
-        <div id="column_chart1" class="graph_style" style=" display: inline-block; width: 70%; height: 400px; float: left;"></div>
-        <div id="column_chart2" class="graph_style" style=" display: inline-block; width: 30%; height: 400px; float: right;"></div>
+    <div>
+        <div id="column_chart1" class="graph_style"
+            style=" display: inline-block; width: 70%; height: 400px; float: left;"></div>
+        <div id="column_chart2" class="graph_style"
+            style=" display: inline-block; width: 30%; height: 400px; float: right;"></div>
     </div>
     <hr style="height:4px;border-width:0;color:gray;background-color:gray">
 
@@ -163,17 +166,64 @@
         $.getJSON('https://spreadsheets.google.com/feeds/list/1_aZ7rE54EShKDFD41sXDeMO7UGgl4mo3O5GVE7xXJcc/5/public/full?alt=json', function (data) {
             for (var i = 0; i < data.feed.entry.length; ++i) {
 
+
                 var json_data = {
                     "City": data.feed.entry[i].gsx$city.$t,
                     "OderID": data.feed.entry[i].gsx$orderid.$t,
                     "Item": data.feed.entry[i].gsx$item.$t,
                     "Latitude": parseFloat(data.feed.entry[i].gsx$latitude.$t),
-                    "Longitude": parseFloat(data.feed.entry[i].gsx$longitude.$t)
+                    "Longitude": parseFloat(data.feed.entry[i].gsx$longitude.$t),
+                    "OrderDispatched": data.feed.entry[i].gsx$orderdispatched.$t,
+                    "OrderShipped": data.feed.entry[i].gsx$ordershipped.$t
                 };
                 jsonDataObject.push(json_data);
 
                 for (var j = 0; j < jsonDataObject.length; j++) {
-                    var marker = L.marker(L.latLng(parseFloat(jsonDataObject[j].Latitude), parseFloat(jsonDataObject[j].Longitude)));
+
+                    if (jsonDataObject[j].OrderDispatched == 'YES') {
+
+
+                        if (jsonDataObject[j].OrderShipped == 'YES') {
+                            var greenIcon = new L.Icon({
+                                iconUrl: 'https://user-images.githubusercontent.com/79055635/107888351-b246d800-6f31-11eb-97bc-91c15f20f044.png',
+                                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                                iconSize: [25, 41],
+                                iconAnchor: [12, 41],
+                                popupAnchor: [1, -34],
+                                shadowSize: [41, 41]
+                            });
+
+                            var marker = L.marker(L.latLng(parseFloat(jsonDataObject[j].Latitude), parseFloat(jsonDataObject[j].Longitude)), { icon: greenIcon });
+                        }
+                        else {
+                            var yellowIcon = new L.Icon({
+                                iconUrl: 'https://user-images.githubusercontent.com/79055635/107888276-45cbd900-6f31-11eb-908e-697c8e32f0dd.png',
+                                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                                iconSize: [25, 41],
+                                iconAnchor: [12, 41],
+                                popupAnchor: [1, -34],
+                                shadowSize: [41, 41]
+                            });
+
+                            var marker = L.marker(L.latLng(parseFloat(jsonDataObject[j].Latitude), parseFloat(jsonDataObject[j].Longitude)), { icon: yellowIcon });
+                        }
+                    }
+
+
+                    else {
+                        var redIcon = new L.Icon({
+                            iconUrl: 'https://user-images.githubusercontent.com/79055635/107888331-917e8280-6f31-11eb-854f-19144ea2d20a.png',
+                            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                            iconSize: [25, 41],
+                            iconAnchor: [12, 41],
+                            popupAnchor: [1, -34],
+                            shadowSize: [41, 41]
+                        });
+
+                        var marker = L.marker(L.latLng(parseFloat(jsonDataObject[j].Latitude), parseFloat(jsonDataObject[j].Longitude)), { icon: redIcon });
+
+                    }
+                    //var marker = L.marker(L.latLng(parseFloat(jsonDataObject[j].Latitude), parseFloat(jsonDataObject[j].Longitude)));
                     marker.bindPopup(jsonDataObject[j].City, {
                         autoClose: false
                     });
@@ -184,9 +234,26 @@
 
                     function onClick_Marker(e) {
                         var marker = e.target;
+                        var disp = "";
+                        var ship = "";
+                        if (marker.myJsonData.OrderDispatched == "YES") {
+                            disp = "YES";
+                        }
+                        else {
+                            disp = "NO";
+                        }
+
+                        if (marker.myJsonData.OrderShipped == "YES") {
+                            ship = "YES";
+                        }
+                        else {
+                            ship = "NO";
+                        }
+                        var message1 = "Order ID: " + marker.myJsonData.OderID + " || Dispatched: " +disp; 
+                        var message2 = " || Item: " + marker.myJsonData.Item +" || Shipped: "+ship; 
                         popup = L.popup()
                             .setLatLng(marker.getLatLng())
-                            .setContent("Order ID: " + marker.myJsonData.OderID + " || Item: " + marker.myJsonData.Item)
+                            .setContent(message1+message2)
                             .openOn(map);
                     }
 
@@ -276,27 +343,27 @@
         var graph_arr = [['Status', 'Total', { role: 'style' }]];
         var bar_color = [];
         $.getJSON('https://spreadsheets.google.com/feeds/list/1_aZ7rE54EShKDFD41sXDeMO7UGgl4mo3O5GVE7xXJcc/5/public/full?alt=json', function (data) {
-         
-        var count = [0, 0, 0];
-        var type = ["Ordered", "Dispatched", "Shipped"];
+
+            var count = [0, 0, 0];
+            var type = ["Ordered", "Dispatched", "Shipped"];
 
             for (var i = 0; i < data.feed.entry.length; ++i) {
                 count[0] += 1;
-                if(data.feed.entry[i].gsx$orderdispatched.$t == "YES"){
+                if (data.feed.entry[i].gsx$orderdispatched.$t == "YES") {
                     count[1] += 1;
                 };
-                if(data.feed.entry[i].gsx$ordershipped.$t == "YES"){
-                   count[2] += 1;
+                if (data.feed.entry[i].gsx$ordershipped.$t == "YES") {
+                    count[2] += 1;
                 };
             };
-            for (var k = 0; k < 3; k++){
+            for (var k = 0; k < 3; k++) {
                 var json_data = {
                     "Type": type[k],
                     "Value": count[k]
                 };
                 jsonDataObject.push(json_data);
             };
-            
+
             // Setting color for the coloumns of graph according to priority of items
             for (var j in jsonDataObject) {
                 if (jsonDataObject[j].Type == 'Ordered') {
@@ -360,18 +427,18 @@
                     '</td><td>' + data.feed.entry[i].gsx$ordertime.$t +
                     '</td><td>' + data.feed.entry[i].gsx$dispatchtime.$t +
                     '</td><td>' + data.feed.entry[i].gsx$shippingtime.$t +
-                    '</td><td>' + data.feed.entry[i].gsx$timetaken.$t 
-                    '</td>';
-                
-                    if(data.feed.entry[i].gsx$ordershipped.$t == "YES"){
-                        trHTML += '<td style="width: 16%;"><div class="pb active" id="o"></div><div class="pb active" id="d"></div><div class="pb active" id="s"></div></td></tr>';
-                    }
-                    else if(data.feed.entry[i].gsx$orderdispatched.$t == "YES"){
-                        trHTML += '<td style="width: 16%;"><div class="pb active" id="o"></div><div class="pb active" id="d"></div><div class="pb" id="s"></div></td></tr>';
-                    }
-                    else{
-                        trHTML += '<td style="width: 16%;"><div class="pb active" id="o"></div><div class="pb" id="d"></div><div class="pb" id="s"></div></td></tr>';
-                    }       
+                    '</td><td>' + data.feed.entry[i].gsx$timetaken.$t
+                '</td>';
+
+                if (data.feed.entry[i].gsx$ordershipped.$t == "YES") {
+                    trHTML += '<td style="width: 16%;"><div class="pb active" id="o"></div><div class="pb active" id="d"></div><div class="pb active" id="s"></div></td></tr>';
+                }
+                else if (data.feed.entry[i].gsx$orderdispatched.$t == "YES") {
+                    trHTML += '<td style="width: 16%;"><div class="pb active" id="o"></div><div class="pb active" id="d"></div><div class="pb" id="s"></div></td></tr>';
+                }
+                else {
+                    trHTML += '<td style="width: 16%;"><div class="pb active" id="o"></div><div class="pb" id="d"></div><div class="pb" id="s"></div></td></tr>';
+                }
             }
 
             console.log(trHTML);
@@ -400,23 +467,23 @@
         $.getJSON('https://spreadsheets.google.com/feeds/list/1_aZ7rE54EShKDFD41sXDeMO7UGgl4mo3O5GVE7xXJcc/5/public/full?alt=json', function (data) {
             var msgHTML = '';
             var dis, ship;
-            
+
             for (var i = 0; i < data.feed.entry.length; ++i) {
                 var myData_map, myData_order;
-                if(i == (data.feed.entry.length-1)){
-                    msgHTML += '<p class="text">Order received for '+ data.feed.entry[i].gsx$item.$t +
-                        ' with order ID ' + data.feed.entry[i].gsx$orderid.$t + '</p>';       
-                }  
-                if(data.feed.entry[i].gsx$orderdispatched.$t == "YES"){
+                if (i == (data.feed.entry.length - 1)) {
+                    msgHTML += '<p class="text">Order received for ' + data.feed.entry[i].gsx$item.$t +
+                        ' with order ID ' + data.feed.entry[i].gsx$orderid.$t + '</p>';
+                }
+                if (data.feed.entry[i].gsx$orderdispatched.$t == "YES") {
                     dis = i;
                 }
-                if(data.feed.entry[i].gsx$ordershipped.$t == "YES"){
+                if (data.feed.entry[i].gsx$ordershipped.$t == "YES") {
                     ship = i;
                 }
             }
 
-            msgHTML += '<p class="text">Order ' + data.feed.entry[dis].gsx$orderid.$t + ' has been dispatched</p>';     
-            msgHTML += '<p class="text">Order ' + data.feed.entry[ship].gsx$orderid.$t + ' has been shipped</p>';       
+            msgHTML += '<p class="text">Order ' + data.feed.entry[dis].gsx$orderid.$t + ' has been dispatched</p>';
+            msgHTML += '<p class="text">Order ' + data.feed.entry[ship].gsx$orderid.$t + ' has been shipped</p>';
             console.log(msgHTML);
             $('#msg').html(msgHTML);
             var msgHTML = '';
