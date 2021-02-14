@@ -27,6 +27,10 @@
 
         }
 
+        body {
+            background-color: black;
+        }
+
         #table1 {
             /*font-family: Arial, Helvetica, sans-serif;*/
             border-collapse: collapse;
@@ -36,19 +40,26 @@
         #table1 td {
             border: 1.5px solid #545454;
             padding: 8px;
+            background-color: #686d76;
+            color: #f7f7f7;
+
+        }
+
+        #table1 tr:nth-child(odd) {
+            background-color: #686d76;
         }
 
         #table1 tr:nth-child(even) {
-            background-color: #f2f2f2;
+            background-color: #686d76;
         }
 
-        #table1 tr:hover {
+        /*#table1 tr:hover {
             background-color: #ddd;
         }
 
         #table1 th:hover {
             background-color: #adacaa;
-        }
+        }*/
 
 
         #table1 th {
@@ -57,7 +68,7 @@
 
             padding-bottom: 20px;
             text-align: center;
-            background-color: #808080;
+            background-color: #393e46;
             color: white;
         }
 
@@ -69,16 +80,16 @@
         }
 
         #o.active {
-            background-color: #8b5e83;
+            background-color: #bedcfa;
             margin-left: 23%;
         }
 
         #d.active {
-            background-color: #a9294f;
+            background-color: #fdcfdf;
         }
 
         #s.active {
-            background-color: #4e8d7c;
+            background-color: #ff884b;
         }
 
         #column_chart1 {
@@ -105,7 +116,7 @@
 
 <body>
     <center>
-        <h2>VB#0704 Warehouse Dashboard</h2>
+        <h2 style="color:darkgray">VB#0704 Warehouse Dashboard</h2>
     </center>
 
     <div id="map" class="map_style" style="height: 380px; width: 1000px; margin: auto;"></div>
@@ -249,11 +260,11 @@
                         else {
                             ship = "NO";
                         }
-                        var message1 = "Order ID: " + marker.myJsonData.OderID + " || Dispatched: " +disp; 
-                        var message2 = " || Item: " + marker.myJsonData.Item +" || Shipped: "+ship; 
+                        var message1 = "Order ID: " + marker.myJsonData.OderID + " || Dispatched: " + disp;
+                        var message2 = " || Item: " + marker.myJsonData.Item + " || Shipped: " + ship;
                         popup = L.popup()
                             .setLatLng(marker.getLatLng())
-                            .setContent(message1+message2)
+                            .setContent(message1 + message2)
                             .openOn(map);
                     }
 
@@ -316,9 +327,17 @@
 
             var options = {
                 title: 'Time Taken for items to be Shipped',
-                hAxis: { title: 'Order ID' },
-                vAxis: { title: 'Time Taken (s)' },
+                hAxis: { title: 'Order ID', textStyle: { color: '#FFF' } ,titleTextStyle: { color: '#FFF' }},
+                vAxis: { title: 'Time Taken (s)', textStyle: { color: '#FFF' },titleTextStyle: { color: '#FFF' } },
                 legend: { position: "none" },
+                backgroundColor: {
+                    fill: '#000000',
+                    fillOpacity: 1
+                },
+                legendTextStyle: { color: '#FFF' },
+                
+                
+
             };
             var chart = new google.visualization.ColumnChart(document.getElementById('column_chart1'));
             chart.draw(data, options);
@@ -367,13 +386,13 @@
             // Setting color for the coloumns of graph according to priority of items
             for (var j in jsonDataObject) {
                 if (jsonDataObject[j].Type == 'Ordered') {
-                    var color = '#8b5e83';
+                    var color = '#bedcfa';
                 }
                 else if (jsonDataObject[j].Type == 'Dispatched') {
-                    var color = '#a9294f';
+                    var color = '#fdcfdf';
                 }
                 else if (jsonDataObject[j].Type == 'Shipped') {
-                    var color = '#4e8d7c';
+                    var color = '#ff884b';
                 }
                 bar_color.push(color)
             }
@@ -388,9 +407,15 @@
 
             var options = {
                 title: 'Total orders in different stages',
-                hAxis: { title: 'Status' },
-                vAxis: { title: 'Number of orders' },
+                hAxis: { title: 'Status', textStyle: { color: '#FFF' } ,titleTextStyle: { color: '#FFF' }},
+                vAxis: { title: 'Number of orders', textStyle: { color: '#FFF' },titleTextStyle: { color: '#FFF' } },
                 legend: { position: "none" },
+                backgroundColor: {
+                    fill: '#000000',
+                    fillOpacity: 1
+                },
+                
+                
             };
             var chart = new google.visualization.ColumnChart(document.getElementById('column_chart2'));
             chart.draw(data, options);
@@ -471,7 +496,7 @@
             for (var i = 0; i < data.feed.entry.length; ++i) {
                 var myData_map, myData_order;
                 if (i == (data.feed.entry.length - 1)) {
-                    msgHTML += '<p class="text">Order received for ' + data.feed.entry[i].gsx$item.$t +
+                    msgHTML += '<p class="text" style = "color: darkgrey">Order received for ' + data.feed.entry[i].gsx$item.$t +
                         ' with order ID ' + data.feed.entry[i].gsx$orderid.$t + '</p>';
                 }
                 if (data.feed.entry[i].gsx$orderdispatched.$t == "YES") {
@@ -482,8 +507,8 @@
                 }
             }
 
-            msgHTML += '<p class="text">Order ' + data.feed.entry[dis].gsx$orderid.$t + ' has been dispatched</p>';
-            msgHTML += '<p class="text">Order ' + data.feed.entry[ship].gsx$orderid.$t + ' has been shipped</p>';
+            msgHTML += '<p class="text" style = "color: darkgrey" >Order ' + data.feed.entry[dis].gsx$orderid.$t + ' has been dispatched</p>';
+            msgHTML += '<p class="text" style = "color: darkgrey" >Order ' + data.feed.entry[ship].gsx$orderid.$t + ' has been shipped</p>';
             console.log(msgHTML);
             $('#msg').html(msgHTML);
             var msgHTML = '';
