@@ -516,7 +516,7 @@
             for (var i = 0; i < data.feed.entry.length; ++i) {
                 var myData_map, myData_order;
                 if (i == (data.feed.entry.length - 1)) {
-                    msgHTML += '<p class="order" style = "color: darkgrey">Order received for ' + data.feed.entry[i].gsx$item.$t +
+                    msgHTML += '<p class="order">Order received for ' + data.feed.entry[i].gsx$item.$t +
                         ' with order ID ' + data.feed.entry[i].gsx$orderid.$t + '</p>';
                 }
                 if (data.feed.entry[i].gsx$orderdispatched.$t == "YES") {
@@ -527,8 +527,8 @@
                 }
             }
 
-            msgHTML += '<p class="dispatch" style = "color: darkgrey" >Order ' + data.feed.entry[dis].gsx$orderid.$t + ' has been Dispatched</p>';
-            msgHTML += '<p class="ship" style = "color: darkgrey" >Order ' + data.feed.entry[ship].gsx$orderid.$t + ' has been Shipped</p>';
+            msgHTML += '<p class="dispatch" >Order ' + data.feed.entry[dis].gsx$orderid.$t + ' has been Dispatched</p>';
+            msgHTML += '<p class="ship" >Order ' + data.feed.entry[ship].gsx$orderid.$t + ' has been Shipped</p>';
             console.log(msgHTML);
             $('#msg').html(msgHTML);
             var msgHTML = '';
